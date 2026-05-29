@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Shop Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- 1. GLOBAL STYLES --- */
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --visual-color: #8e44ad; /* Purple Accent for 3D Visualizer */
+            --quotation-color: #e67e22; /* New Orange Accent for Quotations */
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            touch-action: manipulation; /* Prevent zoom double tap */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- 2. HEADER & LOGO --- */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .logo-img {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--primary-color);
+            border: 2px solid var(--accent-color);
+        }
+
+        .shop-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* --- 3. MAIN GRID LAYOUT --- */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        /* --- 4. BUTTON CARDS --- */
+        .action-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px 10px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-color);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            border-top: 5px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .action-card i {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+        }
+
+        .action-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .action-card p {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        /* Specific Colors for Buttons */
+        .card-3d { border-color: var(--visual-color); }
+        .card-3d i { color: var(--visual-color); }
+
+        .card-stock { border-color: var(--accent-color); }
+        .card-stock i { color: var(--accent-color); }
+
+        .card-billing { border-color: var(--success-color); }
+        .card-billing i { color: var(--success-color); }
+
+        .card-purchase { border-color: var(--warning-color); }
+        .card-purchase i { color: var(--warning-color); }
+
+        .card-reports { border-color: var(--primary-color); }
+        .card-reports i { color: var(--primary-color); }
+
+        /* NEW QUOTATION CARD STYLE */
+        .card-quote { border-color: var(--quotation-color); }
+        .card-quote i { color: var(--quotation-color); }
+
+        /* --- 5. FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #e0e0e0;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: auto;
+        }
+
+        /* --- 6. MOBILE TWEAKS --- */
+        @media (max-width: 600px) {
+            .shop-name { font-size: 1.2rem; }
+            .logo-img { width: 40px; height: 40px; font-size: 18px; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            header { padding: 12px; }
+        }
+
+        /* Prevent zoom on inputs (iOS + mobile fix) */
+        input, select, textarea {
+            font-size: 16px;
+        }
+
+        html, body {
+            -webkit-text-size-adjust: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <div class="logo-img">
+                <i class="fas fa-store"></i>
+            </div>
+            <div class="shop-name">My Shop</div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="dashboard-grid">
+            
+            <a href="3d.html" class="action-card card-3d" id="visualizerLink">
+                <i class="fas fa-cubes"></i>
+                <h3>3D View</h3>
+                <p>3D Visualizer</p>
+            </a>
+            <!-- NEW QUOTATIONS BUTTON ADDED HERE -->
+            <a href="quotations.html" class="action-card card-quote" id="quotationsLink">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <h3>Quotations</h3>
+                <p>Create Quotes</p>
+            </a>
+            
+            <a href="mystock.html" class="action-card card-stock" id="stockLink">
+                <i class="fas fa-boxes"></i>
+                <h3>My Stock</h3>
+                <p>View Inventory</p>
+            </a>
+
+            <a href="billing.html" class="action-card card-billing" id="billingLink">
+                <i class="fas fa-cash-register"></i>
+                <h3>Billing</h3>
+                <p>New Sale</p>
+            </a>
+
+            <a href="purchase.html" class="action-card card-purchase" id="purchaseLink">
+                <i class="fas fa-truck-loading"></i>
+                <h3>Purchase</h3>
+                <p>Add Stock</p>
+            </a>
+
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2023 My Shop Management System
+    </footer>
+
+    <script>
+        // Links to pages
+        const visualizerLink = document.getElementById('visualizerLink');
+        const stockLink = document.getElementById('stockLink');
+        const billingLink = document.getElementById('billingLink');
+        const purchaseLink = document.getElementById('purchaseLink');
+        
+        // NEW: Added quotationsLink to the variables
+        const quotationsLink = document.getElementById('quotationsLink');
+        
+        const reportsLink = document.getElementById('reportsLink');
+
+        // Load Shop ID parameters seamlessly behind the scenes on page load
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlShopId = urlParams.get('shopId');
+            const localStorageShopId = localStorage.getItem('shopId');
+            
+            let shopId = urlShopId || localStorageShopId || '';
+            
+            if (shopId) {
+                // Keep persistent storage synced
+                localStorage.setItem('shopId', shopId);
+                updateLinks(shopId);
+            }
+        };
+
+        // Update all links with Shop ID parameter automatically
+        function updateLinks(shopId) {
+            if (shopId) {
+                visualizerLink.href = `3d.html?shopId=${shopId}`;
+                stockLink.href = `mystock.html?shopId=${shopId}`;
+                billingLink.href = `billing.html?shopId=${shopId}`;
+                purchaseLink.href = `purchase.html?shopId=${shopId}`;
+                
+                // NEW: Update the quotations link
+                quotationsLink.href = `quotations.html?shopId=${shopId}`;
+                
+                reportsLink.href = `reports.html?shopId=${shopId}`;
+            }
+        }
+    </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+
+    // all your existing functions above
+
+    async function shareBillAsImage() {
+
+        const billElement = document.getElementById("billDetailContent");
+
+        if (!billElement) {
+            alert("Bill content not found!");
+            return;
+        }
+
+        const canvas = await html2canvas(billElement, {
+            scale: 2,
+            useCORS: true
+        });
+
+        const imageData = canvas.toDataURL("image/jpeg", 1.0);
+
+        const blob = await (await fetch(imageData)).blob();
+        const file = new File([blob], "Bill.jpg", { type: "image/jpeg" });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                files: [file],
+                title: "Bill",
+                text: "Here is your bill"
+            });
+        } else {
+            const link = document.createElement("a");
+            link.href = imageData;
+            link.download = "Bill.jpg";
+            link.click();
+        }
+    }
+
+</script>
+</body>
+</html>
