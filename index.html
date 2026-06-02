@@ -148,7 +148,97 @@
         .card-quote { border-color: var(--quotation-color); }
         .card-quote i { color: var(--quotation-color); }
 
-        /* --- 5. FOOTER --- */
+
+        /* --- 5. WORKER LOCK SCREEN OVERLAY MODAL --- */
+        .lock-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #2c3e50; /* Solid structural blocking background */
+            display: none; /* Changed to none default, controlled via JS initialization */
+            justify-content: center;
+            align-items: center;
+            z-index: 99999; /* Ensure everything behind is locked */
+        }
+
+        .lock-box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .lock-box h2 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-size: 1.4rem;
+        }
+
+        .lock-box p {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .lock-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            text-transform: uppercase; /* Match uppercase rules visually */
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: #16a085;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            background: #117a65;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-top: 15px;
+            display: none;
+            background: #fde8e7;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* --- 6. FOOTER --- */
         footer {
             text-align: center;
             padding: 15px;
@@ -158,17 +248,12 @@
             margin-top: auto;
         }
 
-        /* --- 6. MOBILE TWEAKS --- */
+        /* --- 7. MOBILE TWEAKS --- */
         @media (max-width: 600px) {
             .shop-name { font-size: 1.2rem; }
             .logo-img { width: 40px; height: 40px; font-size: 18px; }
             .dashboard-grid { grid-template-columns: 1fr; }
             header { padding: 12px; }
-        }
-
-        /* Prevent zoom on inputs (iOS + mobile fix) */
-        input, select, textarea {
-            font-size: 16px;
         }
 
         html, body {
@@ -177,6 +262,32 @@
     </style>
 </head>
 <body>
+
+    <div class="lock-overlay" id="systemLockOverlay">
+        <div class="lock-box">
+            <div style="font-size: 3rem; color: #16a085; margin-bottom: 10px;">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <h2>WORKER LOGIN</h2>
+            <p>ENTER VALID CREDENTIALS TO ACCESS SYSTEM PORTAL</p>
+            
+            <div class="input-group">
+                <label>WORKER ID (4-DIGITS)</label>
+                <input type="text" id="loginWorkerId" maxlength="4" class="lock-input" placeholder="E.G. A123">
+            </div>
+            
+            <div class="input-group">
+                <label>PASSWORD (4-DIGIT NUMBER)</label>
+                <input type="password" id="loginWorkerPass" maxlength="4" class="lock-input" placeholder="••••" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+            </div>
+
+            <button class="btn-login" id="loginSubmitBtn">VERIFY & ACCESS</button>
+            
+            <div class="error-message" id="loginErrorBox">
+                NOT GENUINE WORKER DETAILS. CONTACT TO YOUR OWNER.
+            </div>
+        </div>
+    </div>
 
     <header>
         <div class="logo-container">
@@ -195,7 +306,7 @@
                 <h3>3D View</h3>
                 <p>3D Visualizer</p>
             </a>
-            <!-- NEW QUOTATIONS BUTTON ADDED HERE -->
+            
             <a href="quotations.html" class="action-card card-quote" id="quotationsLink">
                 <i class="fas fa-file-invoice-dollar"></i>
                 <h3>Quotations</h3>
@@ -221,86 +332,138 @@
         &copy; 2023 My Shop Management System
     </footer>
 
-    <script>
-        // Links to pages
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // Firebase Configuration Match Context Details
+        const firebaseConfig = {
+            apiKey: "AIzaSyDJahCtm1JlnXcthsT0LQQ7FRK_4FxPmvw",
+            authDomain: "granite-8283a.firebaseapp.com",
+            databaseURL: "https://granite-8283a-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "granite-8283a",
+            storageBucket: "granite-8283a.firebasestorage.app",
+            messagingSenderId: "920243624114",
+            appId: "1:920243624114:web:cc26acab0453d5e269d1ab"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Core variables setup
         const visualizerLink = document.getElementById('visualizerLink');
         const stockLink = document.getElementById('stockLink');
         const billingLink = document.getElementById('billingLink');
-        const purchaseLink = document.getElementById('purchaseLink');
-        
-        // NEW: Added quotationsLink to the variables
         const quotationsLink = document.getElementById('quotationsLink');
-        
-        const reportsLink = document.getElementById('reportsLink');
+        let currentShopId = '113360';
 
-        // Load Shop ID parameters seamlessly behind the scenes on page load
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const urlShopId = urlParams.get('shopId');
-            const localStorageShopId = localStorage.getItem('shopId');
+        // Check window loads query parameters context securely
+        window.addEventListener('load', () => {
+            // Keep persistent storage synced with the fixed ID
+            localStorage.setItem('shopId', currentShopId);
             
-            let shopId = urlShopId || localStorageShopId || '';
-            
-            if (shopId) {
-                // Keep persistent storage synced
-                localStorage.setItem('shopId', shopId);
-                updateLinks(shopId);
+            // Update all navigation links on the page
+            updateLinks(currentShopId);
+
+            // --- PERSISTENT LOGIN STATE CHECK ---
+            const overlay = document.getElementById('systemLockOverlay');
+            if (sessionStorage.getItem('workerLoggedIn') === 'true') {
+                overlay.style.display = 'none'; // Skip login if already verified in this session
+            } else {
+                overlay.style.display = 'flex'; // Show login screen on fresh initialization
             }
-        };
+        });
 
-        // Update all links with Shop ID parameter automatically
         function updateLinks(shopId) {
             if (shopId) {
-                visualizerLink.href = `3d.html?shopId=${shopId}`;
-                stockLink.href = `mystock.html?shopId=${shopId}`;
-                billingLink.href = `billing.html?shopId=${shopId}`;
-                purchaseLink.href = `purchase.html?shopId=${shopId}`;
+                // Safe checks to ensure global element variables exist before assigning href
+                if (typeof visualizerLink !== 'undefined' && visualizerLink) visualizerLink.href = `3d.html?shopId=${shopId}`;
+                if (typeof stockLink !== 'undefined' && stockLink)           stockLink.href = `mystock.html?shopId=${shopId}`;
+                if (typeof billingLink !== 'undefined' && billingLink)       billingLink.href = `billing.html?shopId=${shopId}`;
+                if (typeof quotationsLink !== 'undefined' && quotationsLink) quotationsLink.href = `quotations.html?shopId=${shopId}`;
                 
-                // NEW: Update the quotations link
-                quotationsLink.href = `quotations.html?shopId=${shopId}`;
-                
-                reportsLink.href = `reports.html?shopId=${shopId}`;
+                // Element ID checks from your original snippet
+                if (document.getElementById('purchaseLink')) document.getElementById('purchaseLink').href = `purchase.html?shopId=${shopId}`;
+                if (document.getElementById('reportsLink'))  document.getElementById('reportsLink').href = `reports.html?shopId=${shopId}`;
+            }
+        }
+
+        // Authentication Submission handler event
+        document.getElementById('loginSubmitBtn').addEventListener('click', async () => {
+            const enteredId = document.getElementById('loginWorkerId').value.trim().toUpperCase();
+            const enteredPass = document.getElementById('loginWorkerPass').value.trim();
+            const errorBox = document.getElementById('loginErrorBox');
+
+            if (!enteredId || !enteredPass) {
+                errorBox.innerText = "PLEASE ENTER BOTH ID AND PASSWORD.";
+                errorBox.style.display = "block";
+                return;
+            }
+
+            try {
+                // Fetch direct from the explicit isolate 'workers' root path
+                const workerRef = ref(db, 'workers/' + enteredId);
+                const snapshot = await get(workerRef);
+
+                if (snapshot.exists()) {
+                    const workerData = snapshot.val();
+                    
+                    // Direct target string comparison evaluations in casing rules
+                    if (workerData.password === enteredPass) {
+                        // Success! Save session state and hide lock system view block out
+                        sessionStorage.setItem('workerLoggedIn', 'true');
+                        document.getElementById('systemLockOverlay').style.display = 'none';
+                    } else {
+                        // Password doesn't match
+                        errorBox.innerText = "NOT GENUINE WORKER DETAILS. CONTACT TO YOUR OWNER.";
+                        errorBox.style.display = "block";
+                    }
+                } else {
+                    // ID doesn't exist
+                    errorBox.innerText = "NOT GENUINE WORKER DETAILS. CONTACT TO YOUR OWNER.";
+                    errorBox.style.display = "block";
+                }
+            } catch (err) {
+                console.error("Auth transaction failed:", err);
+                errorBox.innerText = "CONNECTION FAILURE. PLEASE TRY AGAIN.";
+                errorBox.style.display = "block";
+                alert("Database Error: " + err.message);
+            }
+        });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        async function shareBillAsImage() {
+            const billElement = document.getElementById("billDetailContent");
+            if (!billElement) {
+                alert("Bill content not found!");
+                return;
+            }
+
+            const canvas = await html2canvas(billElement, {
+                scale: 2,
+                useCORS: true
+            });
+
+            const imageData = canvas.toDataURL("image/jpeg", 1.0);
+            const blob = await (await fetch(imageData)).blob();
+            const file = new File([blob], "Bill.jpg", { type: "image/jpeg" });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: "Bill",
+                    text: "Here is your bill"
+                });
+            } else {
+                const link = document.createElement("a");
+                link.href = imageData;
+                link.download = "Bill.jpg";
+                link.click();
             }
         }
     </script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script>
-
-    // all your existing functions above
-
-    async function shareBillAsImage() {
-
-        const billElement = document.getElementById("billDetailContent");
-
-        if (!billElement) {
-            alert("Bill content not found!");
-            return;
-        }
-
-        const canvas = await html2canvas(billElement, {
-            scale: 2,
-            useCORS: true
-        });
-
-        const imageData = canvas.toDataURL("image/jpeg", 1.0);
-
-        const blob = await (await fetch(imageData)).blob();
-        const file = new File([blob], "Bill.jpg", { type: "image/jpeg" });
-
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-                files: [file],
-                title: "Bill",
-                text: "Here is your bill"
-            });
-        } else {
-            const link = document.createElement("a");
-            link.href = imageData;
-            link.download = "Bill.jpg";
-            link.click();
-        }
-    }
-
-</script>
 </body>
 </html>
